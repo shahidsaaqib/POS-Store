@@ -1,0 +1,407 @@
+/* ---------------------------------------------------- */
+/* PROFESSIONAL THEME & AESTHETICS */
+/* ---------------------------------------------------- */
+:root{
+    --primary: #4f46e5; /* Deep Indigo */
+    --primary-hover: #4338ca;
+    --muted: #f4f4f5; /* Light Gray Background */
+    --secondary-bg: #fff;
+    --border-color: #e5e7eb;
+    --table-stripe: #f9fafb;
+    --gap-size: 0.75rem; /* Standardized gap */
+}
+body{
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin:0;
+    background:var(--muted);
+    color:#333; 
+    line-height: 1.5;
+}
+
+/* Header & Layout */
+header{
+    background:var(--primary);
+    color:#fff;
+    padding:1rem 1.5rem;
+    display:flex;
+    align-items:center;
+    gap:1rem; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+header h1{margin:0;font-size:1.4rem; font-weight: 600;}
+.app{display:flex;min-height:calc(100vh - 64px)}
+aside{width:220px;background:#fff;padding:1rem;border-right:1px solid var(--border-color); flex-shrink: 0;}
+main{flex:1;padding:1.5rem} 
+
+/* Inputs, Buttons, & Controls */
+button, input, select, textarea{
+    font:inherit; 
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px; 
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+button{
+    cursor:pointer; 
+    background: var(--primary); 
+    color: white; 
+    border: none; 
+    font-weight: 500;
+    min-height: 40px; 
+}
+button:hover { 
+    background-color: var(--primary-hover); 
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px var(--primary);
+    outline: none;
+}
+
+/* Navigation Buttons (Desktop) */
+.nav-btn{
+    display:block;width:100%;text-align:left;padding:.8rem 1rem;
+    border-radius:6px;border:none;background:transparent;cursor:pointer; 
+    color: #4b5563; 
+    font-weight: 500;
+    display: flex; /* Added for icon alignment */
+    align-items: center;
+    gap: 0.75rem; /* Gap between icon and text */
+}
+.nav-btn i { font-size: 1.1rem; width: 1.25rem; text-align: center; } /* Consistent icon size */
+.nav-btn:hover:not(.active) {
+    background: var(--table-stripe);
+    color: var(--primary);
+}
+.nav-btn.active{
+    background:var(--primary);
+    color:#fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+}
+.nav-btn.active i { color: #fff; }
+
+section{display:none}
+section.active{display:block}
+
+/* Grid & Flex Containers */
+.grid{display:grid;gap:var(--gap-size)} 
+/* Increased grid columns to 4 for better form layout */
+.grid-cols-4{grid-template-columns:repeat(4,1fr)}
+.flex-row{display: flex; gap: var(--gap-size); align-items: center;}
+.flex-wrap{ flex-wrap: wrap; }
+
+/* Card Component */
+.card{
+    background:var(--secondary-bg);
+    padding:1.25rem;
+    border-radius:10px; 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--border-color);
+}
+
+/* Table Component */
+table{
+    width:100%;border-collapse:collapse; 
+    table-layout: auto; 
+    font-size: 0.95rem;
+    border: none;
+}
+th,td{
+    padding:.75rem 1rem; 
+    text-align:left;
+    border: none;
+}
+th{
+    background: var(--primary);
+    color:#fff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+/* Zebra Striping */
+table tbody tr:nth-child(even) {
+    background-color: var(--table-stripe);
+}
+table tbody tr:hover {
+    background-color: #f0f4f8;
+}
+
+.muted{color:#6b7280;font-size:.9rem}
+.toolbar{display:flex;gap:var(--gap-size);align-items:center; flex-wrap: wrap;}
+.small{font-size:.85rem;padding:.4rem .75rem}
+.danger{color:#dc2626}
+.warning{color:#f59e0b}
+.success{color:#10b981}
+.right{text-align:right}
+
+/* Dashboard Metrics */
+#metricSales, #metricRevenue, #metricProfit, #metricLowStock {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+}
+#metricRevenue { color: var(--primary); }
+#metricProfit { color: #10b981; } /* NEW PROFIT COLOR */
+#metricLowStock { color: #f59e0b; }
+
+/* ---------------------------------------------------- */
+/* MOBILE FRIENDLY RESPONSIVE STYLES (Optimized) */
+/* ---------------------------------------------------- */
+@media (max-width: 768px) {
+  /* Consistent Touch Target Height */
+  button, input, select, textarea { min-height: 44px; padding: 0.6rem; }
+  
+  /* MAIN LAYOUT */
+  .app{flex-direction: column;}
+  main{padding: .75rem;}
+  .card{padding: 1rem;}
+
+  /* HEADER - Better Alignment */
+  header{
+      flex-direction: column; 
+      align-items: flex-start;
+      padding: 0.75rem;
+  }
+  
+  /* NAVIGATION (Sidebar) - CONVERT TO TILES/FLEXBOX */
+  aside{
+      width: 100%; 
+      padding: 0.5rem; 
+      border-right: none; 
+      border-bottom: 1px solid var(--border-color); 
+      order: -1;
+      display: flex;
+      flex-wrap: wrap; 
+      justify-content: space-around;
+      gap: 0.5rem;
+  }
+  aside hr, aside .muted, aside ul { display: none; }
+  .nav-btn{
+    flex-basis: 47%; 
+    font-size: .9rem;
+    background: var(--table-stripe);
+    border: 1px solid var(--border-color);
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    display: flex; /* Keep flex for icon/text centering */
+    justify-content: center;
+  }
+  .nav-btn span { display: none; } /* Hide text on small tiles */
+  .nav-btn i { width: auto; font-size: 1.25rem; } /* Only show large icon */
+
+  
+  /* GRIDS & FORMS */
+  .grid-cols-4, .grid-cols-3{grid-template-columns: 1fr;} /* Adjusted to handle the new 4-column grid */
+  /* Refunds grid now becomes 1 column on mobile */
+  #refunds .grid { grid-template-columns: 1fr !important; }
+  
+  /* FIX for Sales Tab (Customer, Date, Payment): Force stacking by overriding inline grid */
+  #sales .card > .grid {
+      grid-template-columns: 1fr !important;
+  }
+  
+  /* FIX for Inventory Tab (Input Fields): Force stacking by overriding inline grid */
+  #inventory .card > .grid {
+      grid-template-columns: 1fr !important;
+  }
+  
+  /* DASHBOARD TABLES (Stack) */
+  div[style*="align-items:flex-start"]{flex-direction: column;}
+  div[style*="align-items:flex-start"] > div { flex: 1; width: 100%; }
+  div[style*="align-items:flex-start"] > div:first-child { margin-bottom: 1rem; }
+  
+  /* Sales Input Stacking */
+  #sales .flex-row { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+  #sales .flex-row input, #sales .flex-row select, #sales .flex-row button { 
+      width: 100% !important; 
+      max-width: none !important; 
+      flex: 1 1 100% !important; 
+  }
+  
+  /* Optimizing Tables (Horizontal Scroll) */
+  table {
+    display: block;
+    overflow-x: auto; 
+    white-space: nowrap;
+    border: 1px solid var(--border-color); 
+  }
+  table th, table td { 
+    white-space: normal; 
+    min-width: 100px; /* Reduced min-width for more columns */
+    padding: .5rem .5rem; 
+  }
+  
+  /* Hide less critical columns in Inventory for better focus/scroll */
+  /* NEW Column Indexes: 1. Name 2. Type 3. Batch 4. Expiry 5. Manufacturer 6. Purchase 7. Price 8. Stock 9. Reorder 10. Supplier 11. Location 12. Barcode 13. Action */
+  #productsTable th:nth-child(2), #productsTable td:nth-child(2), /* Type */
+  #productsTable th:nth-child(3), #productsTable td:nth-child(3), /* Batch */
+  #productsTable th:nth-child(4), #productsTable td:nth-child(4), /* Expiry */
+  #productsTable th:nth-child(5), #productsTable td:nth-child(5), /* Manufacturer */
+  #productsTable th:nth-child(6), #productsTable td:nth-child(6), /* Purchase Price */
+  #productsTable th:nth-child(9), #productsTable td:nth-child(9), /* Reorder Point */
+  #productsTable th:nth-child(10), #productsTable td:nth-child(10), /* Supplier */
+  #productsTable th:nth-child(11), #productsTable td:nth-child(11)  /* Location */
+  {
+      display: none !important;
+  }
+  
+  /* History Table Optimization: Hide Sale ID and Payment on mobile for space */
+  #salesHistoryTable th:nth-child(1), #salesHistoryTable td:nth-child(1), /* Sale ID */
+  #salesHistoryTable th:nth-child(5), #salesHistoryTable td:nth-child(5)  /* Payment */
+  {
+      display: none !important;
+  }
+  
+  /* CHECKOUT/TOTAL BUTTONS - Stack them on mobile */
+  div[style*="justify-content:space-between"]{ flex-direction: column; align-items: flex-end; }
+  div[style*="margin-top:.5rem"] button { width: 100%; margin-top: .5rem; }
+  
+  /* INVOICE MODAL */
+  #invoice-modal{
+    width: 95%; 
+    left: 2.5%; 
+    top: 2.5%; 
+    bottom: 2.5%; 
+    position: fixed;
+    overflow-y: auto;
+  }
+}
+
+/* ---------------------------------------------------- */
+/* SALES Section Improvements (Cart Styling) - NEW STYLES */
+/* ---------------------------------------------------- */
+#cartTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#cartTable th, #cartTable td {
+    padding: 0.5rem;
+    vertical-align: middle;
+}
+
+/* Style for Quantity Input in Cart */
+#cartTable input[type="number"] {
+    width: 60px; /* Thicker width */
+    padding: 0.3rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    background: var(--muted);
+}
+
+/* Cart Footer/Total Styling */
+#cartFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--table-stripe); /* Light background for footer */
+    border-top: 2px solid var(--border-color);
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-top: 0.5rem;
+    border-radius: 0 0 8px 8px; /* Rounded bottom corners */
+}
+
+#cartTotal {
+    color: var(--primary); /* Primary color for total amount */
+    font-size: 1.5rem;
+}
+
+/* Styling the Remove button as an icon */
+#cartTable button {
+    background: none;
+    border: none;
+    color: #ef4444; /* Red color for removal */
+    padding: 0;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+#cartTable button:hover {
+    color: #dc2626;
+}
+/* ---------------------------------------------------- */
+
+/* ---------------------------------------------------- */
+/* COMPACT TILES LAYOUT (CSS Grid) - URDU REQUEST */
+/* ---------------------------------------------------- */
+
+/* Ù¹Ø§Ø¦Ù„Ø² Ú©Ø§ Ù…Ø±Ú©Ø²ÛŒ Ú©Ù†Ù¹ÛŒÙ†Ø± */
+.tiles-container {
+    display: grid; 
+    /* Ø±Ø³Ù¾Ø§Ù†Ø³ÛŒÙˆ Ú¯Ø±Úˆ: Ú©Ù… Ø§Ø² Ú©Ù… 180px Ú©ÛŒ Ú†ÙˆÚ‘Ø§Ø¦ÛŒ Ú©Û’ Ø³Ø§ØªÚ¾ */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--gap-size); 
+    padding: 0; 
+    margin-top: 1.5rem; 
+}
+
+/* ÛØ± Ø§Ù†ÙØ±Ø§Ø¯ÛŒ Ù¹Ø§Ø¦Ù„ Ú©ÛŒ Ø§Ø³Ù¹Ø§Ø¦Ù„Ù†Ú¯ */
+.tile {
+    background-color: var(--secondary-bg); /* Ø³ÙÛŒØ¯ Ù¾Ø³ Ù…Ù†Ø¸Ø± */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* ÛÙ„Ú©Ø§ Ø³Ø§ÛŒÛ */
+    transition: transform 0.2s, box-shadow 0.2s; /* Hover Ø§ÛŒÙÛŒÚ©Ù¹ Ú©Û’ Ù„ÛŒÛ’ */
+    cursor: pointer;
+    text-decoration: none; /* Ù„Ù†Ú© Ø³Û’ underline ÛÙ¹Ø§Ù†Ø§ */
+    color: inherit;
+    display: block;
+}
+
+/* Hover Ø§ÛŒÙÛŒÚ©Ù¹ */
+.tile:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); 
+    transform: translateY(-3px); 
+}
+
+/* Ù¹Ø§Ø¦Ù„ Ú©Û’ Ø§Ù†Ø¯Ø± Ù…ÙˆØ¬ÙˆØ¯ Ø¢Ø¦ÛŒÚ©Ù† */
+.tile i {
+    font-size: 2rem; 
+    margin-bottom: 0.5rem;
+    display: block;
+    color: var(--primary); 
+}
+
+/* Ù¹Ø§Ø¦Ù„ Ú©Û’ Ø§Ù†Ø¯Ø± Ù…ÙˆØ¬ÙˆØ¯ Ø¹Ù†ÙˆØ§Ù† */
+.tile h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* print */
+@media print{
+  body *{visibility:hidden}
+  #invoice-modal, #invoice-modal *{visibility:visible}
+  #invoice-modal{position:static;margin:0}
+}
+
+/* LOGIN STYLES */
+#loginScreen {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  background:#f9fafb;
+}
+#loginBox {
+  background:#fff;
+  padding:2rem;
+  border:1px solid #ddd;
+  border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  width:340px;
+  text-align:center;
+}
+#loginBox input { width:100%; margin-bottom:0.75rem; padding:0.6rem; }
+#loginBox button { width:100%; }

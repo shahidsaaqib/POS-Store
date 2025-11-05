@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Medical Store POS — Professional Theme | Supabase Ready</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="loginScreen">
+  <div id="loginBox">
+    <h2 style="margin-bottom:1rem;color:var(--primary)">Login</h2>
+    <input id="loginUser" placeholder="Username (admin | manager | cashier)" />
+    <input id="loginPass" type="password" placeholder="Password" />
+    <div style="display:flex;gap:.5rem;margin-top:.5rem">
+      <button id="loginBtn">Login</button> 
+    </div>
+    <div id="loginError" style="color:red;margin-top:.5rem;display:none">Invalid credentials</div>
+    <div style="margin-top:.75rem;font-size:.9rem;color:#6b7280">
+      Test: admin/admin123 • manager/manager123 • cashier/cashier123
+    </div>
+  </div>
+</div>
+
+<header style="display:none">
+  <h1>💊 Medical Store POS — Full (Responsive)</h1>
+  <div class="muted" id="projectStatus">Loading…</div>
+</header>
+
+<div class="app" style="display:none">
+  <aside>
+    <button class="nav-btn active" onclick="navigate('dashboard', this)"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
+    <button class="nav-btn" onclick="navigate('inventory', this)"><i class="fa-solid fa-boxes-stacked"></i> Inventory</button>
+    <button class="nav-btn" onclick="navigate('suppliers', this)"><i class="fa-solid fa-truck-field"></i> Suppliers</button>
+    <button class="nav-btn" onclick="navigate('sales', this)"><i class="fa-solid fa-file-invoice"></i> Sales</button>
+    <button class="nav-btn" onclick="navigate('refunds', this)"><i class="fa-solid fa-arrow-rotate-left"></i> Refunds</button>
+    <button class="nav-btn" onclick="navigate('history', this)"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+    <button class="nav-btn" onclick="navigate('reports', this)"><i class="fa-solid fa-chart-simple"></i> Reports</button>
+    <button class="nav-btn" onclick="navigate('purchase', this)"><i class="fa-solid fa-cart-shopping"></i> Purchase Orders</button>
+    <hr/>
+    <div class="muted" style="font-size:.9rem">Tips:</div>
+    <ul style="padding-left:1rem">
+      <li>Use Search in Sales</li>
+      <li>Generate Purchase Order from Reorder list</li>
+    </ul>
+  </aside>
+
+  <main>
+    <section id="dashboard" class="active">
+      <div class="flex-row flex-wrap" style="align-items: stretch;"> 
+        <div class="card" style="flex:1;min-width:180px">
+          <div class="muted">Total Sales</div>
+          <div id="metricSales" style="font-size:1.3rem;font-weight:700">0</div>
+        </div>
+        <div class="card" style="flex:1;min-width:180px">
+          <div class="muted">Total Revenue</div>
+          <div id="metricRevenue" style="font-size:1.3rem;font-weight:700">₨ 0</div>
+        </div>
+        
+        <div class="card" style="flex:1;min-width:180px">
+          <div class="muted">Total Gross Profit</div>
+          <div id="metricProfit" style="font-size:1.3rem;font-weight:700; color: #10b981;">₨ 0</div>
+        </div>
+        <div class="card" style="flex:1;min-width:180px">
+          <div class="muted">Low Stock</div>
+          <div id="metricLowStock" style="font-size:1.3rem;font-weight:700">0</div>
+        </div>
+      </div>
+      <div style="margin-top:1rem; margin-bottom: 1.5rem;" class="flex-row">
+        <label for="dashboardScope" class="muted" style="white-space: nowrap; padding-right: 0.5rem; display: flex; align-items: center;">View Metrics for:</label>
+        <select id="dashboardScope" onchange="loadDashboard()" style="min-height:40px;">
+            <option value="30">Last 30 Days</option>
+            <option value="7">Last 7 Days</option>
+            <option value="1">Today</option>
+            <option value="all" selected>All Time</option>
+        </select>
+      </div>
+
+      <h3 style="margin-top:1.5rem">فوری رسائی کے لنکس (Quick Access)</h3>
+      <div class="tiles-container">
+          <a href="#sales" class="tile" onclick="navigate('sales', this.parentElement.parentElement.parentElement.querySelector('.app aside button:nth-child(4)')); return false;">
+              <i class="fa-solid fa-file-invoice"></i>
+              <h4>فروخت (Sales)</h4>
+          </a>
+
+          <a href="#inventory" class="tile" onclick="navigate('inventory', this.parentElement.parentElement.parentElement.querySelector('.app aside button:nth-child(2)')); return false;">
+              <i class="fa-solid fa-boxes-stacked"></i>
+              <h4>اسٹاک (Inventory)</h4>
+          </a>
+          
+          <a href="#reports" class="tile" onclick="navigate('reports', this.parentElement.parentElement.parentElement.querySelector('.app aside button:nth-child(7)')); return false;">
+              <i class="fa-solid fa-chart-simple"></i>
+              <h4>رپورٹس (Reports)</h4>
+          </a>
+
+          <a href="#purchase" class="tile" onclick="navigate('purchase', this.parentElement.parentElement.parentElement.querySelector('.app aside button:nth-child(8)')); return false;">
+              <i class="fa-solid fa-cart-shopping"></i>
+              <h4>خریداری آرڈر</h4>
+          </a>
+          
+          <a href="#refunds" class="tile" onclick="navigate('refunds', this.parentElement.parentElement.parentElement.querySelector('.app aside button:nth-child(5)')); return false;">
+              <i class="fa-solid fa-arrow-rotate-left"></i>
+              <h4>ریفنڈز (Refunds)</h4>
+          </a>
+      </div>
+
+      <h3 style="margin-top:1.5rem">📈 Top Selling Products (Filtered by Scope)</h3>
+      <div class="card" style="padding:0; margin-bottom: 1rem;">
+        <table id="topSellingTable">
+          <thead><tr><th>Product</th><th class="right">Qty Sold</th><th class="right">Revenue ₨</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;gap:1rem;margin-top:1rem;align-items:flex-start">
+        <div style="flex:1">
+          <h3>🟡 Low Stock Products</h3>
+          <div class="card" style="padding:0">
+            <table id="lowStockTable">
+              <thead><tr><th>Product</th><th class="right">Stock</th><th>Supplier</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="flex:1">
+          <h3>⏰ Expiring Soon / Expired</h3>
+          <div class="card" style="padding:0">
+            <table id="expiringTable">
+              <thead><tr><th>Product</th><th>Expiry</th><th class="right">Days</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:1rem">🧮 Reorder Suggestions</h3>
+      <div class="card" style="padding:0">
+        <table id="reorderTable">
+          <thead><tr><th>Product</th><th class="right">Stock</th><th class="right">Avg/day</th><th class="right">Reorder Qty</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div style="margin-top:.5rem" class="toolbar">
+        <button class="small" onclick="generatePurchaseCSV()">Generate Purchase CSV for Reorder</button>
+      </div>
+    </section>
+
+    <section id="inventory">
+      <h2><i class="fa-solid fa-boxes-stacked"></i> Inventory</h2>
+      <div class="card" style="margin-bottom:.5rem">
+        <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: var(--gap-size);">
+          <input id="p_name" placeholder="Name">
+          <input id="p_strength" placeholder="Strength (e.g., 500mg, 10gm)"> 
+          <input id="p_category" placeholder="Type">
+          
+          <input id="p_manufacturer" placeholder="Manufacturer">
+          <input id="p_batch" placeholder="Batch No">
+          <input id="p_expiry" type="date" placeholder="Expiry">
+          
+          <input id="p_location" placeholder="Shelf / Location">
+          <input id="p_purchase" type="number" step="0.01" placeholder="Purchase Price ₨">
+          <input id="p_selling" type="number" step="0.01" placeholder="Selling Price ₨">
+          
+          <input id="p_stock" type="number" placeholder="Stock Qty">
+          <input id="p_reorder_point" type="number" placeholder="Reorder Point (5)">
+          <select id="p_supplier"></select>
+          <input id="p_barcode" placeholder="Barcode (Unique)" title="Enter a unique barcode for scanning"> 
+        </div>
+        <div class="flex-row" style="margin-top:.5rem;gap:.5rem">
+          <button onclick="addProduct()" id="addProductBtn">Add Product</button>
+          <button onclick="setProductFormState(null)">Clear</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center; flex-wrap: wrap; gap: 0.5rem;">
+          <div class="muted">All Products</div>
+          <input id="inventorySearch" placeholder="Search product/batch/barcode..." oninput="filterInventory()" style="flex: 1; max-width: 260px;">
+          <select id="inventorySupplierFilter" onchange="filterInventory()" style="max-width: 180px;"><option value="">All Suppliers</option></select>
+          <input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="importProductsCSV(this.files[0])">
+          <button onclick="$('csvFileInput').click()" class="small" style="background:#10b981; color:white; border:none;">Import CSV</button>
+        </div>
+        
+
+
+        <table id="productsTable" style="margin-top:.5rem">
+          <thead><tr><th>Name (Strength)</th><th>Type</th><th>Batch</th><th>Expiry</th><th>Manufacturer</th><th class="right">Purchase ₨</th><th class="right">Price ₨</th><th class="right">Stock</th><th class="right">Reorder Point</th><th>Supplier</th><th>Location</th><th>Barcode</th><th>Action</th></tr></thead> 
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="suppliers">
+      <h2><i class="fa-solid fa-truck-field"></i> Suppliers</h2>
+      <div class="card">
+        <div class="grid grid-cols-3">
+          <input id="s_name" placeholder="Supplier Name">
+          <input id="s_contact" placeholder="Contact">
+          <input id="s_email" placeholder="Email">
+          <textarea id="s_notes" placeholder="Notes" style="grid-column:1 / -1"></textarea>
+        </div>
+        <div style="margin-top:.5rem">
+          <button onclick="addSupplier()">Add Supplier</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:.5rem">
+        <h3>All Suppliers</h3>
+        <table id="suppliersTable">
+          <thead><tr><th>Name</th><th>Contact</th><th>Email</th><th>Notes</th><th>Action</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="sales">
+      <h2><i class="fa-solid fa-file-invoice"></i> Sales</h2>
+      <div class="card">
+        <div class="grid" style="grid-template-columns:1fr 160px 160px">
+          <input id="s_customer" placeholder="Customer Name">
+          <input id="s_date" type="datetime-local"> 
+          <select id="s_payment">
+            <option value="Cash">Cash</option><option value="Card">Card</option><option value="Easypaisa">Easypaisa</option>
+          </select>
+        </div>
+
+        <div class="flex-row" style="margin-top:var(--gap-size);">
+          <input id="searchSaleProduct" placeholder="Search product (Name, Batch, Barcode, or Mfg)..." oninput="filterSaleProducts()" style="flex:2">
+          <select id="saleProductSelect" style="flex: 2; max-width: 320px;"></select>
+          <input id="saleQty" type="number" placeholder="Qty" value="1" style="flex: 0; min-width: 80px;">
+          <button onclick="addToCart()">Add</button>
+        </div>
+
+        <div style="margin-top:var(--gap-size);">
+          <table id="cartTable">
+            <thead><tr><th>Product</th><th class="right">Qty</th><th class="right">Price ₨</th><th class="right">Total ₨</th><th>Action</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          
+          <div id="cartFooter">
+              <span>Total:</span>
+              <span id="cartTotal">₨ 0.00</span>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.5rem; flex-wrap: wrap;">
+            <div class="muted">Tip: edit qty in cart directly</div>
+            <div class="flex-row" style="margin-top:.5rem; justify-content: flex-end;">
+                <button onclick="checkout()">Checkout</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="refunds">
+      <h2><i class="fa-solid fa-arrow-rotate-left"></i> Refunds</h2>
+      <div class="card">
+        <div class="grid" style="grid-template-columns:1fr 120px;">
+          <select id="refundProductSelect"></select>
+          <input id="refundQty" type="number" placeholder="Qty">
+        </div>
+        <textarea id="refundReason" placeholder="Reason for Refund (e.g., Damaged product, wrong size)" rows="3" style="margin-top:var(--gap-size);"></textarea>
+        <div style="margin-top:.5rem"><button onclick="processRefund()">Process Refund</button></div>
+      </div>
+
+      <div class="card" style="margin-top:.5rem">
+        <h3>Refund History</h3>
+        <table id="refundsTable">
+          <thead><tr><th>Product</th><th class="right">Qty</th><th>Reason</th><th>Date</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="history">
+      <h2><i class="fa-solid fa-clock-rotate-left"></i> Sales History</h2>
+      <div class="card">
+        <div class="flex-row" style="gap:.5rem; flex-wrap: wrap;">
+          <input id="historyFrom" type="date" style="flex: 1;"><input id="historyTo" type="date" style="flex: 1;">
+          <input id="historySearch" placeholder="Search customer/ID..." style="flex: 1;"> <select id="historyPaymentFilter" style="flex: 1;"> <option value="">All Payments</option>
+            <option value="Cash">Cash</option>
+            <option value="Card">Card</option>
+            <option value="Easypaisa">Easypaisa</option>
+          </select>
+          <button onclick="loadSalesHistory()">Filter</button>
+          <button onclick="exportSalesCSV()">Export CSV</button>
+        </div>
+        <table id="salesHistoryTable" style="margin-top:.5rem">
+          <thead><tr><th>Sale ID</th><th>Date/Time</th><th>Customer</th><th class="right">Total ₨</th><th>Payment</th><th>Details</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="reports">
+      <h2><i class="fa-solid fa-chart-simple"></i> Reports</h2>
+      <div class="card">
+        <div class="flex-row" style="gap:.5rem; flex-wrap: wrap;">
+          <input id="reportFrom" type="date" style="flex: 1;"><input id="reportTo" type="date" style="flex: 1;">
+          <button onclick="generateReport()">Generate</button>
+          <button onclick="exportReportCSV()">Export CSV</button>
+        </div>
+        <div id="reportResult" style="margin-top:.5rem"></div>
+      </div>
+    </section>
+
+    <section id="purchase">
+      <h2><i class="fa-solid fa-cart-shopping"></i> Purchase Orders</h2>
+      <div class="card">
+        <div class="muted">Reorder suggestions are auto-generated. You can export as CSV to send to suppliers.</div>
+        <div style="margin-top:.5rem" class="flex-row">
+          <button onclick="generatePurchaseCSV()">Generate Purchase CSV</button>
+          <button onclick="generatePurchasePDF()">Generate Purchase PDF</button>
+        </div>
+      </div>
+    </section>
+    
+  </main>
+</div>
+
+<div id="invoice-modal" style="display:none;position:fixed;right:10px;top:10px;background:#fff;padding:1rem;border:1px solid #ddd;z-index:1000;width:360px">
+  <div id="invoiceContent"></div>
+  <div class="flex-row" style="margin-top:.5rem; justify-content: flex-end;">
+    <button onclick="window.print()">Print</button>
+    <button onclick="closeInvoice()">Close</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
