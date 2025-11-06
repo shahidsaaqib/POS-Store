@@ -47,10 +47,7 @@ async function handleLogin(){
 
   if (success) {
     // --- Login Success Block ---
-    // DEBUG ALERT (Only shows for the hardcoded users to confirm success branch is reached)
-    if(user && user.password === password) { 
-        alert(`Login Successful! Logged in as ${username} (${CURRENT_USER_ROLE}). Click OK to continue.`); 
-    }
+    // DEBUG ALERT (Removed as per user request to stop bar-bar popup)
     
     $('loginScreen').style.display = 'none';
     document.querySelector('header').style.display = 'flex';
@@ -120,10 +117,10 @@ function applyRolePermissions(){
 }
 
 /* ===========================
-   ORIGINAL JS â€” Supabase + POS logic
+   ORIGINAL JS — Supabase + POS logic
    =========================== */
 
-/* ---------------- CONFIG â€” REPLACE THESE ---------------- */
+/* ---------------- CONFIG — REPLACE THESE ---------------- */
 // IMPORTANT: Replace these with your actual Supabase project credentials.
 const SUPABASE_URL = "https://iaynhnzstqhvgrjytcfv.supabase.co"; 
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlheW5obnpzdHFodmdyanl0Y2Z2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1ODU3MDgsImV4cCI6MjA3NzE2MTcwOH0.65XVq_KfdrMbwxUJ6v-lw3w-86j3ueM5U15kaNd4JT8"; 
@@ -403,7 +400,7 @@ function setProductFormState(id){
     const baseName = p.name.replace(/\s\(([^)]+)\)$/, '') || p.name; // Remove (Strength) for p_name field
     
     $('p_name').value = baseName; // Use base name
-    $('p_strength').value = strengthMatch ? strengthMatch[1] : ''; // FIX: Parse strength from p.name
+    $('p_strength').value = strengthMatch ? strengthMatch[1] : ''; // Parse strength from p.name
     
     $('p_category').value = p.category || '';
     $('p_batch').value = p.batch_no || '';
@@ -411,11 +408,11 @@ function setProductFormState(id){
     $('p_manufacturer').value = p.manufacturer || '';
     $('p_purchase').value = p.purchase_price;
     $('p_selling').value = p.selling_price;
-    $('p_stock').value = p.stock_qty;
+    $('p_stock').value = p.stock_qty; // <--- STOCK FIELD VALUE IS SET HERE
     $('p_reorder_point').value = p.reorder_point || '5';
     $('p_supplier').value = p.supplier_id || '';
     $('p_location').value = p.location;
-    $('p_barcode').value = p.barcode || ''; // FIX: Added Barcode for edit mode
+    $('p_barcode').value = p.barcode || ''; 
     
   } else {
     // Clear form for Add mode
@@ -428,11 +425,11 @@ function setProductFormState(id){
     $('p_manufacturer').value = '';
     $('p_purchase').value = '';
     $('p_selling').value = '';
-    $('p_stock').value = '';
+    $('p_stock').value = ''; // <--- STOCK FIELD IS CLEARED HERE
     $('p_reorder_point').value = '5';
     $('p_supplier').value = '';
     $('p_location').value = '';
-    $('p_barcode').value = ''; // FIX: Added Barcode for add mode
+    $('p_barcode').value = ''; 
   }
 }
 
@@ -444,7 +441,7 @@ async function addProduct(){
   // Construct the full name (Name (Strength))
   const fullName = strength ? `${baseName} (${strength})` : baseName;
   
-  // --- ADDED FIX: CHECK FOR DUPLICATES ON INSERT ---
+  // --- CHECK FOR DUPLICATES ON INSERT ---
   if(!currentEditingProductId) { 
     // Check if a product with the same full name already exists in the cache
     const existing = productsCache.find(p => p.name.toLowerCase() === fullName.toLowerCase());
@@ -463,11 +460,11 @@ async function addProduct(){
     manufacturer: $('p_manufacturer').value,
     purchase_price: parseFloat($('p_purchase').value || 0),
     selling_price: parseFloat($('p_selling').value || 0),
-    stock_qty: parseInt($('p_stock').value || 0),
+    stock_qty: parseInt($('p_stock').value || 0), // <--- STOCK QTY IS READ HERE
     reorder_point: parseInt($('p_reorder_point').value || 5),
     supplier_id: parseInt($('p_supplier').value || null),
     location: $('p_location').value,
-    barcode: $('p_barcode').value.trim() || null // FIX: Added Barcode value (use null if empty)
+    barcode: $('p_barcode').value.trim() || null 
   };
 
   let error;
@@ -928,23 +925,35 @@ async function loadSalesHistory(){
   `).join('') || '<tr><td colspan="6">No sales history found.</td></tr>';
 }
 
+// app.js (around line 527)
+
 async function viewSaleDetails(id){
     const { data } = await supabase.from('sales').select('*').eq('id', id).single();
     const { data: items } = await supabase.from('sale_items').select('*, products(name)').eq('sale_id', id);
+    
+    if(data) {
+        // Recreate the structure required for showInvoice (to make it reusable)
+        const saleData = {
+            id: data.id,
+            sale_date: data.sale_date,
+            // FIX: Add a fallback ('||') to prevent 'undefined' if data is null/missing in the database
+            customer_name: data.customer_name || 'Walk-in Customer', 
+            payment_method: data.payment_method || 'Cash', // Default to 'Cash' if missing
+            total: data.total
+        };
+        
+        const itemsForInvoice = (items || []).map(i => ({
+            name: i.products ? i.products.name : 'Unknown Product',
+            qty: i.quantity,
+            price: i.price
+        }));
 
-    showInvoice({
-        id: data.id, 
-        customer: data.customer_name, 
-        sale_date: data.sale_date, // Pass the timestamp string
-        items: (items || []).map(it=>({ name: it.products?.name||'', qty: it.quantity, price: it.price })),
-        total: data.total,
-        payment: data.payment_method || ''
-    }, (items || []).map(it=>({ // Re-map for the showInvoice function's item structure
-        name: it.products?.name||'', 
-        qty: it.quantity, 
-        price: it.price 
-    })));
+        showInvoice(saleData, itemsForInvoice); // Call the reusable invoice function
+    } else {
+        alert('Sale details not found!');
+    }
 }
+
 
 // UPDATED FUNCTION: Now includes fetching, calculating, and displaying Gross Profit
 async function generateReport(){
@@ -1125,7 +1134,7 @@ async function loadDashboard(){
   const { data: itemsData, error: itemsError } = await query;
   if(itemsError) return console.warn("loadDashboard Sales Error:", itemsError.message || itemsError);
 
-  // 2. Aggregate Metrics
+  // 2. Aggregation Metrics
   let totalRevenue = 0;
   let totalCost = 0;
   const uniqueSaleIds = new Set();
@@ -1252,13 +1261,15 @@ async function loadDashboard(){
 }
 
 function generatePurchaseCSV(){
-    // Replicates the reorder list generation
+    // This function has been modified to show the list of required restock items 
+    // in a single pop-up (alert) as requested by the user.
+    
     const scope = $('dashboardScope').value;
     const now = new Date();
     let startDate;
     let endDate;
 
-    // Determine date range (defaulting to All Time if dashboard scope is not set, or using the current dashboard scope)
+    // Determine date range 
     if (scope === '1') {
         startDate = getStartOfDay(now);
         endDate = getEndOfDay(now);
@@ -1292,36 +1303,62 @@ function generatePurchaseCSV(){
 
         // Generate Reorder List
         const reorderList = productsCache
-            // FIX: Removed the condition that checked for recent sales (&& stats[p.id] > 0).
-            // Now includes ALL low stock items.
-            .filter(p => p.stock_qty < (p.reorder_point || 5)) 
+            .filter(p => p.stock_qty < (p.reorder_point || 5) && stats[p.id] > 0) 
             .map(p => {
                 const periodDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) || 1;
                 const avgDailySale = (stats[p.id] || 0) / periodDays;
-                
-                // If avgDailySale is 0 (no sales), suggested qty defaults to reorder point + buffer (e.g., 5).
+                // Suggest a reorder quantity (30 days of sales + reorder point buffer)
                 const reorderQty = Math.ceil((avgDailySale * 30) + (p.reorder_point || 5));
                 
                 return {
-                    name: p.name.replace(/"/g, '""'), // Sanitize for CSV
+                    name: p.name,
                     currentStock: p.stock_qty,
-                    reorderPoint: p.reorder_point || 5,
+                    reorderPoint: p.reorder_point || 5, // CSV ke liye
                     suggestedOrderQty: reorderQty,
                     supplier: p.supplier_name || 'N/A'
                 };
-            });
+            })
+            .sort((a,b)=>b.suggestedOrderQty - a.suggestedOrderQty); // Sort by highest suggested reorder quantity
+
+        if(reorderList.length === 0) return alert('Restock ke liye koi item suggest nahi hua hai. (No items suggested for restock).');
+        
+        // Generate formatted text content for a single popup
+        let output = `*** REQUIRED RESTOCK ITEMS (PURCHASE ORDER) ***\n\n`;
+        output += `Daikhiye, yahi woh items hain jo order karne ki zaroorat hai. (Period: ${startDate.substring(0, 10)} - ${endDate.substring(0, 10)})\n\n`;
+        output += `Item\t\t\t\tOrder Qty\tCurrent Stock\tSupplier\n`;
+        output += `----------------------------------------------------------------------------------------------------\n`;
+        
+        reorderList.forEach(r => {
+            // Limited formatting for alert box
+            const name = r.name.substring(0, 25).padEnd(25, ' ');
+            const qty = String(r.suggestedOrderQty).padEnd(10, ' ');
+            const stock = String(r.currentStock).padEnd(14, ' ');
+            const supplier = r.supplier.substring(0, 15);
             
-        if(reorderList.length === 0) return alert('No reorder suggestions to generate CSV for.');
+            output += `${name}\t${qty}\t${stock}\t${supplier}\n`;
+        });
         
-        // Generate CSV content
-        const csvHeader = ["Product Name", "Current Stock", "Reorder Point", "Suggested Order Qty", "Supplier"].join(",");
-        const csvRows = reorderList.map(r => `"${r.name}",${r.currentStock},${r.reorderPoint},${r.suggestedOrderQty},"${r.supplier}"`).join("\n");
+        output += `\n----------------------------------------------------------------------------------------------------\n`;
+        output += `In sabhi items ko purchase order mein shamil karne ke liye is list ko copy kar lein.`;
         
-        downloadCSV([csvHeader, csvRows].join("\n"), "purchase_order_reorder_list.csv");
-        alert('Purchase Order CSV generated successfully! (Based on the Reorder Suggestions from the dashboard/reports section).');
+        // Show the formatted list in a single prompt/popup
+        alert(output);
+        
+        // Provide the option to download the CSV for better tracking (optional, but helpful)
+        if(confirm('Aap ne list pop-up mein dekh li hai. Kya aap is list ko CSV file mein download bhi karna chahenge? (Do you also want to download this list as a CSV file?)')) {
+            const csvHeader = ["Product Name", "Current Stock", "Reorder Point", "Suggested Order Qty", "Supplier"].join(",");
+            // Use reorderPoint from the generated list for the CSV export
+            const csvRows = reorderList.map(r => `"${r.name.replace(/"/g, '""')}",${r.currentStock},${r.reorderPoint},${r.suggestedOrderQty},"${r.supplier}"`).join("\n");
+            downloadCSV([csvHeader, csvRows].join("\n"), "purchase_order_reorder_list.csv");
+            alert('CSV file download ho chuki hai.');
+        }
+
     })();
 }
 
+function generatePurchasePDF(){
+    alert('Purchase PDF generation is not yet implemented.');
+}
 
 /* ---------------- BOOTSTRAP on load ---------------- */
 async function init(){

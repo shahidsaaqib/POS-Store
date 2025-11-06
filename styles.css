@@ -151,13 +151,25 @@ table tbody tr:hover {
 /* MOBILE FRIENDLY RESPONSIVE STYLES (Optimized) */
 /* ---------------------------------------------------- */
 @media (max-width: 768px) {
-  /* Consistent Touch Target Height */
-  button, input, select, textarea { min-height: 44px; padding: 0.6rem; }
+  /* **FIX 1: Input Field Padding Reduced** */
+  button, input, select, textarea { 
+      min-height: 44px; 
+      padding: 0.6rem 0.4rem; /* Reduced horizontal padding */
+      min-width: 0; /* Ensures no minimum width constraint */
+  }
   
-  /* MAIN LAYOUT */
+  /* **FIX 2: Reduced Layout Padding** */
   .app{flex-direction: column;}
-  main{padding: .75rem;}
-  .card{padding: 1rem;}
+  main{padding: 0.5rem;} /* Reduced padding */
+  .card{padding: 0.75rem;} /* Reduced card padding */
+
+  /* **FIX 3: Gap Size Reduced on Mobile** */
+  :root {
+      --gap-size: 0.5rem; /* Critical: Reduced gap for 2-column fit */
+  }
+  .grid{ gap: var(--gap-size); }
+  .flex-row{ gap: var(--gap-size); }
+
 
   /* HEADER - Better Alignment */
   header{
@@ -194,7 +206,7 @@ table tbody tr:hover {
 
   
   /* GRIDS & FORMS */
-  .grid-cols-4, .grid-cols-3{grid-template-columns: 1fr;} /* Adjusted to handle the new 4-column grid */
+  .grid-cols-4, .grid-cols-3{grid-template-columns: 1fr;} 
   /* Refunds grid now becomes 1 column on mobile */
   #refunds .grid { grid-template-columns: 1fr !important; }
   
@@ -203,9 +215,9 @@ table tbody tr:hover {
       grid-template-columns: 1fr !important;
   }
   
-  /* FIX for Inventory Tab (Input Fields): Force stacking by overriding inline grid */
+  /* Inventory Tab: Force 2 columns */
   #inventory .card > .grid {
-      grid-template-columns: 1fr !important;
+      grid-template-columns: repeat(2, 1fr) !important;
   }
   
   /* DASHBOARD TABLES (Stack) */
@@ -333,38 +345,38 @@ table tbody tr:hover {
 /* COMPACT TILES LAYOUT (CSS Grid) - URDU REQUEST */
 /* ---------------------------------------------------- */
 
-/* Ù¹Ø§Ø¦Ù„Ø² Ú©Ø§ Ù…Ø±Ú©Ø²ÛŒ Ú©Ù†Ù¹ÛŒÙ†Ø± */
+/* ٹائلز کا مرکزی کنٹینر */
 .tiles-container {
     display: grid; 
-    /* Ø±Ø³Ù¾Ø§Ù†Ø³ÛŒÙˆ Ú¯Ø±Úˆ: Ú©Ù… Ø§Ø² Ú©Ù… 180px Ú©ÛŒ Ú†ÙˆÚ‘Ø§Ø¦ÛŒ Ú©Û’ Ø³Ø§ØªÚ¾ */
+    /* رسپانسیو گرڈ: کم از کم 180px کی چوڑائی کے ساتھ */
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: var(--gap-size); 
     padding: 0; 
     margin-top: 1.5rem; 
 }
 
-/* ÛØ± Ø§Ù†ÙØ±Ø§Ø¯ÛŒ Ù¹Ø§Ø¦Ù„ Ú©ÛŒ Ø§Ø³Ù¹Ø§Ø¦Ù„Ù†Ú¯ */
+/* ہر انفرادی ٹائل کی اسٹائلنگ */
 .tile {
-    background-color: var(--secondary-bg); /* Ø³ÙÛŒØ¯ Ù¾Ø³ Ù…Ù†Ø¸Ø± */
+    background-color: var(--secondary-bg); /* سفید پس منظر */
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1.5rem 1rem;
     text-align: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* ÛÙ„Ú©Ø§ Ø³Ø§ÛŒÛ */
-    transition: transform 0.2s, box-shadow 0.2s; /* Hover Ø§ÛŒÙÛŒÚ©Ù¹ Ú©Û’ Ù„ÛŒÛ’ */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* ہلکا سایہ */
+    transition: transform 0.2s, box-shadow 0.2s; /* Hover ایفیکٹ کے لیے */
     cursor: pointer;
-    text-decoration: none; /* Ù„Ù†Ú© Ø³Û’ underline ÛÙ¹Ø§Ù†Ø§ */
+    text-decoration: none; /* لنک سے underline ہٹانا */
     color: inherit;
     display: block;
 }
 
-/* Hover Ø§ÛŒÙÛŒÚ©Ù¹ */
+/* Hover ایفیکٹ */
 .tile:hover {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); 
     transform: translateY(-3px); 
 }
 
-/* Ù¹Ø§Ø¦Ù„ Ú©Û’ Ø§Ù†Ø¯Ø± Ù…ÙˆØ¬ÙˆØ¯ Ø¢Ø¦ÛŒÚ©Ù† */
+/* ٹائل کے اندر موجود آئیکن */
 .tile i {
     font-size: 2rem; 
     margin-bottom: 0.5rem;
@@ -372,7 +384,7 @@ table tbody tr:hover {
     color: var(--primary); 
 }
 
-/* Ù¹Ø§Ø¦Ù„ Ú©Û’ Ø§Ù†Ø¯Ø± Ù…ÙˆØ¬ÙˆØ¯ Ø¹Ù†ÙˆØ§Ù† */
+/* ٹائل کے اندر موجود عنوان */
 .tile h4 {
     margin: 0;
     font-size: 1rem;
