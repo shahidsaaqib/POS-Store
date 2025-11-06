@@ -1292,10 +1292,14 @@ function generatePurchaseCSV(){
 
         // Generate Reorder List
         const reorderList = productsCache
-            .filter(p => p.stock_qty < (p.reorder_point || 5) && stats[p.id] > 0) 
+            // FIX: Removed the condition that checked for recent sales (&& stats[p.id] > 0).
+            // Now includes ALL low stock items.
+            .filter(p => p.stock_qty < (p.reorder_point || 5)) 
             .map(p => {
                 const periodDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) || 1;
                 const avgDailySale = (stats[p.id] || 0) / periodDays;
+                
+                // If avgDailySale is 0 (no sales), suggested qty defaults to reorder point + buffer (e.g., 5).
                 const reorderQty = Math.ceil((avgDailySale * 30) + (p.reorder_point || 5));
                 
                 return {
@@ -1318,9 +1322,6 @@ function generatePurchaseCSV(){
     })();
 }
 
-function generatePurchasePDF(){
-    alert('Purchase PDF generation is not yet implemented.');
-}
 
 /* ---------------- BOOTSTRAP on load ---------------- */
 async function init(){
